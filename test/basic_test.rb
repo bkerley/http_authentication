@@ -21,9 +21,11 @@ class HttpBasicAuthenticationTest < Test::Unit::TestCase
         end.new
       end
       
-      def render(options)
-        self.renders << options
-      end
+      protected      
+      
+        def render(options)
+          self.renders << options
+        end
     end.new
   end
 
