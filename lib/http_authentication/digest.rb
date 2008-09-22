@@ -1,11 +1,15 @@
 module HttpAuthentication
   module Digest
     module ControllerMethods
+      def authenticate_or_request_with_http_digest(realm = "Application", &login_procedure)
+        authenticate_with_http_digest(&login_procedure) || request_http_digest_authentication(realm)
+      end
+      
       def authenticate_with_http_digest(&login_procedure)
         HttpAuthentication::Digest.authenticate(self, &login_procedure)
       end
 
-      def request_http_basic_authentication(realm = "Application")
+      def request_http_digest_authentication(realm = "Application")
         HttpAuthentication::Digest.authentication_request(self, realm)
       end
     end
