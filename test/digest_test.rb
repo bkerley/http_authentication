@@ -39,7 +39,7 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
   end
 
   def test_authentication_request
-    authentication_request(@controller, 'Megaglobalapp')
+    @controller.build_request
 		auth_header = @controller.headers['WWW-Authenticate']
     assert auth_header.include?('realm="Megaglobalapp"')
 		assert auth_header.include?('nonce=')
@@ -48,7 +48,7 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
   end
 
 	def test_encode_credentials
-	  authentication_request(@controller, 'Megaglobalapp')
+    @controller.build_request
 	  auth_response_string = @controller.headers['WWW-Authenticate']
 	  auth_responses = parse_auth_string(auth_response_string)
     # headers = @controller.request.env
