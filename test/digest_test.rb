@@ -35,4 +35,20 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
 		assert auth_header.include? 'opaque='
     assert_equal :unauthorized, @controller.renders.first[:status]
   end
+
+	def test_encode_credentials
+	  authentication_request(@controller, 'Megaglobalapp')
+	  auth_header_array = @controller.headers['WWW-Authenticate'].gsub('Digest ','').split(',')
+	  auth_headers = auth_header_array.inject({}) do |acc, e|
+	    eql = (e =~ /=/)
+	    key = e[0..(eql-1)]
+	    value = e[(eql+1)..-1]
+	    acc[key] = value
+	    acc
+    end
+    # headers = @controller.request.env
+	  
+	  assert_equal '"Megaglobalapp"', auth_headers['realm']
+	  
+  end
 end
