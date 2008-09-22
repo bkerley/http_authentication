@@ -1,2 +1,2 @@
 require 'http_authentication/basic'
-# IMPLEMENT ME: require 'http_authentication/digest' 
+require 'http_authentication/digest' 
