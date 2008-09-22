@@ -72,7 +72,7 @@ In your integration tests, you can do something like this:
 
 Simple Digest example:
 
-Digest authentication cannot be simple, but I had you going there!
+For a working example, see http://github.com/bkerley/digestif/tree/master
 
   class EnjoyableController < ApplicationController
     def diversion
