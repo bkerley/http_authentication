@@ -95,7 +95,7 @@ module HttpAuthentication
     def parse_auth_string(auth_string)
       return auth_string.gsub('Digest ', '').split(',').inject({}) do |acc, e|
         eql = (e =~ /=/)
-        key = e[0..(eql-1)]
+        key = e[0..(eql-1)].strip
         value = e[(eql+1)..-1]
         acc[key] = value.gsub('"','')
         acc
