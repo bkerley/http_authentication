@@ -27,7 +27,12 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
     end.new
   end
 
-  def test_truth
-    assert true
+  def test_authentication_request
+    authentication_request(@controller, "Megaglobalapp")
+		auth_header = @controller.headers["WWW-Authenticate"]
+    assert auth_header.include? 'realm="Megaglobalapp"'
+		assert auth_header.include? 'nonce='
+		assert auth_header.include? 'opaque='
+    assert_equal :unauthorized, @controller.renders.first[:status]
   end
 end
