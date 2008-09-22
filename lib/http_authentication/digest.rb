@@ -34,8 +34,25 @@ module HttpAuthentication
       # Fancy nouncing goes here
     end
 
-    def encode_credentials(user_name, realm, password, env)
+    def encode_credentials(user_name, password, auth_response_str, method, request_uri)
+      resp = parse_auth_string(auth_response_str)
+      realm = resp['realm']
       ha1 = HA1(user_name, realm, password)
+      ha2 = HA2(method, request_uri)
+      
+      # bogus nonce_count, encode_credentials isn't used except for testing
+      nonce_count = '00000001'
+      client_nonce = make_opaque
+      nonce = resp['nonce']
+      qop = resp['qop']
+      opaque = resp['opaque']
+      
+      response = response_digest(ha1, nonce, nonce_count, client_nonce, qop, ha2)
+      
+      encode_hash = {'username'=>user_name, 'realm'=>realm, 'nonce'=>nonce,
+        'uri'=> request_uri, 'qop'=>qop, 'nc'=>nonce_count, 'cnonce'=>client_nonce,
+        'response'=>response, 'opaque'=>opaque}
+      return "Digest " + encode_hash.map{|k,v| tuple(k,v)}.join(',')
     end
 
     def authentication_request(controller, realm)
@@ -57,16 +74,23 @@ module HttpAuthentication
 		end
 
     def parse_auth_string(auth_string)
-      return auth_string.split(',').inject({}) do |acc, e|
+      return auth_string.gsub('Digest ', '').split(',').inject({}) do |acc, e|
         eql = (e =~ /=/)
         key = e[0..(eql-1)]
         value = e[(eql+1)..-1]
-        acc[key] = value
+        acc[key] = value.gsub('"','')
         acc
       end
     end
 
 		private
+		# conditional quotation for certain values
+		def tuple(key, value)
+		  noquote_keys = %w{nc qop}
+		  return %(#{key}=\"#{value.gsub(/"/, "")}\") unless noquote_keys.include? key
+		  return %(#{key}=#{value.gsub(/"/, "")})
+	  end
+		
 		# RFC 2617 3.2.1
 		def challenge_response(realm)
 			challenge = {'qop'=>'auth', 'algorithm'=>'MD5'}
