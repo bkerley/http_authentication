@@ -31,7 +31,7 @@ module HttpAuthentication
     end
   
     def decode_credentials(request)
-      # Fancy nouncing goes here
+      parse_auth_string(authorization(request))
     end
 
     def encode_credentials(user_name, password, auth_response_str, method, request_uri)
