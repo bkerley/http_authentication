@@ -70,10 +70,28 @@ In your integration tests, you can do something like this:
   end
 
 
-Todo:
+Simple Digest example:
 
-* Implement Digest authentication scheme (be a hero, implement it!)
+Digest authentication cannot be simple, but I had you going there!
 
+  class EnjoyableController < ApplicationController
+    def diversion
+      authenticate_or_request_with_http_digest("Diversions") do |username, verifier|
+        # username:realm:password
+        username == "dhh" && verifier[digest_credentials('dhh', 'secret', 'Diversions')]
+      end
+    end
+  end
+
+`digest_credentials` is simply:
+
+  OpenSSL::Digest::MD5.hexdigest("#{username}:#{realm}:#{password}")
+
+In your database, you should probably store the output of that function (and never EVER change your
+realm or usernames).
+
+Digest caveats: no nonce, client_nonce, nonce_count, or opaque chacking are done, so fun stuff like
+replay attacks are still possible with this kind of authentication.
 
 References:
 
