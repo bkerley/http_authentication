@@ -47,12 +47,13 @@ module HttpAuthentication
 		private
 		# RFC 2617 3.2.1
 		def challenge_response(realm)
-			challenge = {'realm'=>realm, 'qop'=>'auth'}
+			challenge = {'qop'=>'auth', 'algorithm'=>'MD5'}
 			
-			# using a random opaquifier string as a nonce
-			# this compromises this against replay attacks
-			# since we have no way to know know if we've seen
-			# a particular nonce before
+			challenge['realm'] = realm
+			
+			# Using a random opaquifier string as a nonce this compromises this against
+			# replay attacks since we have no way to know know if we've seen a particular
+			# nonce before.  If this is a problem, you might just want to use HTTPS.
 			challenge['nonce'] = make_opaque
 			challenge['opaque'] = make_opaque
 			
