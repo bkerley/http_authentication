@@ -44,6 +44,18 @@ module HttpAuthentication
       return false
     end
 
+		def response_digest(ha1, nonce, nonce_count, client_nonce, qop, ha2)
+			OpenSSL::Digest::MD5.hexdigest("#{ha1}:#{nonce}:#{nonce_count}:#{client_nonce}:#{qop}:#{ha2}")
+		end
+		
+		def HA1(username, realm, password)
+			OpenSSL::Digest::MD5.hexdigest("#{username}:#{realm}:#{password}")
+		end
+		
+		def HA2(method, digest_uri)
+			OpenSSL::Digest::MD5.hexdigest("#{method}:#{digest_uri}")
+		end
+
 		private
 		# RFC 2617 3.2.1
 		def challenge_response(realm)
@@ -64,16 +76,6 @@ module HttpAuthentication
 			Base64.encode64(OpenSSL::Random.random_bytes(30)).strip
 		end
 		
-		def response_digest(ha1, nonce, nonce_count, client_nonce, qop, ha2)
-			OpenSSL::Digest::MD5.hexdigest("#{ha1}:#{nonce}:#{nonce_count}:#{client_nonce}:#{qop}:#{ha2}")
-		end
-		
-		def HA1(username, realm, password)
-			OpenSSL::Digest::MD5.hexdigest("#{username}:#{realm}:#{password}")
-		end
-		
-		def HA2(method, digest_uri)
-			OpenSSL::Digest::MD5.hexdigest("#{method}:#{digest_uri}")
-		end
+
   end
 end
