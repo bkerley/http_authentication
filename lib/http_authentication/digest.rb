@@ -39,9 +39,23 @@ module HttpAuthentication
     end
 
     def authentication_request(controller, realm)
-      # Proper headers
-      controller.render :text => "Access denied.\n", :status => :unauthorized
-      return false    
+      controller.headers["WWW-Authenticate"] = %(Digest #{challenge_response(realm)})
+      controller.send(:render, :text => "HTTP Digest: Access denied.\n", :status => :unauthorized)
+      return false
     end
+
+		private
+		# RFC 2617 3.2.1
+		def challenge_response(realm)
+			challenge = {'realm'=>realm, 'qop'=>'auth'}
+			challenge['nonce'] = make_nonce
+			
+			return challenge.map{|k,v| %(#{k}=\"#{v.gsub(/"/, "")}\")}.join(',')
+		end
+		
+		# totally bogus, doesn't check to make sure it only gets used once, no timestamp, etc.
+		def make_nonce
+			Base64.encode64(OpenSSL::Random.random_bytes(30)).strip
+		end
   end
 end
