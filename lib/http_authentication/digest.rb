@@ -48,13 +48,18 @@ module HttpAuthentication
 		# RFC 2617 3.2.1
 		def challenge_response(realm)
 			challenge = {'realm'=>realm, 'qop'=>'auth'}
-			challenge['nonce'] = make_nonce
+			
+			# using a random opaquifier string as a nonce
+			# this compromises this against replay attacks
+			# since we have no way to know know if we've seen
+			# a particular nonce before
+			challenge['nonce'] = make_opaque
+			challenge['opaque'] = make_opaque
 			
 			return challenge.map{|k,v| %(#{k}=\"#{v.gsub(/"/, "")}\")}.join(',')
 		end
 		
-		# totally bogus, doesn't check to make sure it only gets used once, no timestamp, etc.
-		def make_nonce
+		def make_opaque
 			Base64.encode64(OpenSSL::Random.random_bytes(30)).strip
 		end
   end
