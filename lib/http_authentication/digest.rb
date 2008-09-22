@@ -34,8 +34,8 @@ module HttpAuthentication
       # Fancy nouncing goes here
     end
 
-    def encode_credentials(user_name, password)
-      # You compute me
+    def encode_credentials(user_name, realm, password, env)
+      ha1 = HA1(user_name, realm, password)
     end
 
     def authentication_request(controller, realm)
