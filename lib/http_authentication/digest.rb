@@ -12,6 +12,10 @@ module HttpAuthentication
       def request_http_digest_authentication(realm = "Application")
         HttpAuthentication::Digest.authentication_request(self, realm)
       end
+      
+      def digest_credentials(username, realm='Application', password)
+         HttpAuthentication::Digest.HA1(username, realm, password)
+       end
     end
 
     extend self
