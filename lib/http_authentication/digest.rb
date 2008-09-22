@@ -62,5 +62,13 @@ module HttpAuthentication
 		def make_opaque
 			Base64.encode64(OpenSSL::Random.random_bytes(30)).strip
 		end
+		
+		def HA1(username, realm, password)
+			OpenSSL::Digest::MD5.hexdigest("#{username}:#{realm}:#{password}")
+		end
+		
+		def HA2(method, digest_uri)
+			OpenSSL::Digest::MD5.hexdigest("#{method}:#{digest_uri}")
+		end
   end
 end
