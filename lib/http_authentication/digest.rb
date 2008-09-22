@@ -14,14 +14,29 @@ module HttpAuthentication
     
     def authenticate(controller, &login_procedure)
       if authorization(controller.request)
-        login_procedure.call(*user_name_and_password(controller.request))
+        login_procedure.call(*user_name_and_verifier(controller.request))
       else
         false
       end
     end
 
-    def user_name_and_password(request)
-      decode_credentials(request).split(/:/, 2)
+    def user_name_and_verifier(request)
+      creds = decode_credentials(request)
+      username = creds['username']
+      
+      nonce = creds['nonce']
+      nonce_count = creds['nc']
+      client_nonce = creds['cnonce']
+      qop = creds['qop']
+      
+      method = request.method.to_s.upcase
+      request_uri = request.request_uri
+      ha2 = HA2(method, request_uri)
+      verifier = proc do |ha1|
+        response_digest(ha1, nonce, nonce_count, client_nonce, qop, ha2) == creds['response']
+      end
+      
+      return [username, verifier]
     end
   
     def authorization(request)
