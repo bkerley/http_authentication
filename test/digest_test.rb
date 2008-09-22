@@ -7,21 +7,30 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
   
   def setup
     @controller = Class.new do
-      attr_accessor :headers, :renders
+      attr_accessor :headers, :renders, :request
       
       def initialize
         @headers, @renders = {}, []
       end
       
-      def request
-        Class.new do
-          def env
-            blank_env = {'REQUEST_METHOD' => 'GET', 'REQUEST_URI'    => '/ready/to/rumble.js'}
-            full_env = HttpAuthentication::Digest.encode_credentials('dhh', 'Megaglobalapp', 'secret', blank_env)
-            return populated_env
+      def build_request
+        HttpAuthentication::Digest.authentication_request(self, 'Megaglobalapp')
+    	  auth_response_string = self.headers['WWW-Authenticate']
+    	  
+        encoded_credentials = HttpAuthentication::Digest.encode_credentials(
+          'dhh', 'secret', auth_response_string, 'GET', '/ready/to/rumble'
+        )
+        
+        @request = Class.new do
+          attr_accessor :env, :method, :request_uri
+          def initialize(encoded_credentials)
+            @env = {'HTTP_AUTHORIZATION'=>encoded_credentials}
+            @method = :get
+            @request_uri = '/ready/to/rumble'
           end
-        end.new
+        end.new(encoded_credentials)
       end
+      
       
       def render(options)
         self.renders << options
