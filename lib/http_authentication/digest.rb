@@ -64,6 +64,10 @@ module HttpAuthentication
 			Base64.encode64(OpenSSL::Random.random_bytes(30)).strip
 		end
 		
+		def response_digest(ha1, nonce, nonce_count, client_nonce, qop, ha2)
+			OpenSSL::Digest::MD5.hexdigest("#{ha1}:#{nonce}:#{nonce_count}:#{client_nonce}:#{qop}:#{ha2}")
+		end
+		
 		def HA1(username, realm, password)
 			OpenSSL::Digest::MD5.hexdigest("#{username}:#{realm}:#{password}")
 		end
