@@ -38,17 +38,11 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
 
 	def test_encode_credentials
 	  authentication_request(@controller, 'Megaglobalapp')
-	  auth_header_array = @controller.headers['WWW-Authenticate'].gsub('Digest ','').split(',')
-	  auth_headers = auth_header_array.inject({}) do |acc, e|
-	    eql = (e =~ /=/)
-	    key = e[0..(eql-1)]
-	    value = e[(eql+1)..-1]
-	    acc[key] = value
-	    acc
-    end
+	  auth_response_string = @controller.headers['WWW-Authenticate'].gsub('Digest ','')
+	  auth_responses = parse_auth_string(auth_response_string)
     # headers = @controller.request.env
 	  
-	  assert_equal '"Megaglobalapp"', auth_headers['realm']
+	  assert_equal '"Megaglobalapp"', auth_responses['realm']
 	  
   end
 end

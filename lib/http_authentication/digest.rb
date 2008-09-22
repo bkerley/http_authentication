@@ -56,6 +56,16 @@ module HttpAuthentication
 			OpenSSL::Digest::MD5.hexdigest("#{method}:#{digest_uri}")
 		end
 
+    def parse_auth_string(auth_string)
+      return auth_string.split(',').inject({}) do |acc, e|
+        eql = (e =~ /=/)
+        key = e[0..(eql-1)]
+        value = e[(eql+1)..-1]
+        acc[key] = value
+        acc
+      end
+    end
+
 		private
 		# RFC 2617 3.2.1
 		def challenge_response(realm)
