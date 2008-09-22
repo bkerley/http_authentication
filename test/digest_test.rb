@@ -88,7 +88,7 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
     ha1 = HA1('dhh', 'Megaglobalapp', 'secret')
     
     @controller.build_request
-    assert(authenticate(@controller) do |user_name, verifier|
+    assert(!authenticate(@controller) do |user_name, verifier|
       user_name == "dhh" && verifier['47db90657b40465681cda1f8595e6db2']
     end)
   end
