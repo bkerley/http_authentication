@@ -74,4 +74,22 @@ class HttpDigestAuthenticationTest < Test::Unit::TestCase
 	  
 	  assert_equal response_digest(ha1, credentials['nonce'], credentials['nc'], credentials['cnonce'], credentials['qop'], ha2), credentials['response']
   end
+  
+  def test_successful_authentication
+    ha1 = HA1('dhh', 'Megaglobalapp', 'secret')
+    
+    @controller.build_request
+    assert(authenticate(@controller) do |user_name, verifier|
+      user_name == "dhh" && verifier['98483ce6fb0720a5e42e513ebf3f4017']
+    end)
+  end
+  
+  def test_unsuccessful_authentication
+    ha1 = HA1('dhh', 'Megaglobalapp', 'secret')
+    
+    @controller.build_request
+    assert(authenticate(@controller) do |user_name, verifier|
+      user_name == "dhh" && verifier['47db90657b40465681cda1f8595e6db2']
+    end)
+  end
 end
